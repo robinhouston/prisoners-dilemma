@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>The Iterated Prisoner’s Dilemma after Press and Dyson</title>
+    <style type="text/css">
+      body { font-family: sans-serif; margin: 2em; width: 800px; background: #999; }
+      #content { background: white; padding: 1em 2em; border-radius: 5px; }
+      #game { border: 1px solid #999; padding: 12px; }
+      #game form { margin: 12px; }
+      #game #reset-game { font-size: 12px; }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script>
+      function calculateMyMove(your_last_move, my_last_move) {
+        var my_probability_of_cooperation = {
+          "true,true": 2/3,
+          "true,false": 2/3,
+          "false,true": 0,
+          "false,false": 1/3
+        }[your_last_move + "," + my_last_move]
+        
+        return Math.random() < my_probability_of_cooperation;
+      }
+      
+      function calculateScores(your_move, my_move) {
+        return {
+          "true,true":   { "you": 3, "me": 3 },
+          "true,false":  { "you": 0, "me": 5 },
+          "false,true":  { "you": 5, "me": 0 },
+          "false,false": { "you": 1, "me": 1 }
+        }[your_move + "," + my_move]
+      }
+      
+      // Pad a number n with zeros to k digits
+      function zeroPad(k, n) {
+        var s = "" + n;
+        while (s.length < k) s = '0' + s;
+        return s;
+      }
+      // Format a number to three decimal places
+      function formatNumber(n) {
+        var integer_part = Math.floor(n);
+        var fractional_part = n - integer_part;
+        
+        return integer_part + "." + zeroPad(3, Math.round(1000 * fractional_part));
+      }
+      
+      $(function() {
+        var your_move
+          , your_last_move = true
+          , my_last_move = true
+          , your_total_score = 0
+          , my_total_score = 0
+          , number_of_moves = 0;
+        
+        $("#game form #cooperate").click(function() {
+          your_move = true;
+          return true;
+        });
+        $("#game form #defect").click(function() {
+          your_move = false;
+          return true;
+        });
+        
+        var move_template = $("<div><span class='move-number'></span>. You <span class='your-move'></span> (<span class='your-score'></span> points) and I <span class='my-move'></span> (<span class='my-score'></span> points)</div>");
+        $("#game form").submit(function(e) {
+          e.preventDefault();
+          var my_move = calculateMyMove(your_last_move, my_last_move);
+          var scores = calculateScores(your_move, my_move);
+          
+          // Update the totals
+          my_total_score += scores.me;
+          your_total_score += scores.you;
+          number_of_moves += 1;
+          
+          // Update the page
+          $("#your-average-score").text(formatNumber(your_total_score/number_of_moves));
+          $("#my-average-score").text(formatNumber(my_total_score/number_of_moves));
+          var this_move = move_template.clone();
+          this_move.find(".move-number").text(number_of_moves).end()
+                   .find(".your-move").text(your_move ? "cooperated" : "defected").end()
+                   .find(".your-score").text(scores.you).end()
+                   .find(".my-move").text(my_move ? "cooperated" : "defected").end()
+                   .find(".my-score").text(scores.me).end();
+          $("#history").prepend(this_move);
+          
+          // The current moves are next time’s last moves
+          your_last_move = your_move;
+          my_last_move = my_move;
+          return false;
+        });
+        
+        $("#reset-game").click(function() {
+          your_total_score = 0;
+          my_total_score = 0;
+          number_of_moves = 0;
+
+          $("#your-average-score, #my-average-score, #history").html("");
+
+          return false;
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="content">
+      <h1>The Iterated Prisoner’s Dilemma</h1>
+      <h2>The Game</h2>
+      <p>In each round, each of us can choose to cooperate or to defect.
+      We play repeated rounds.</p>
+    
+      <h2>Scoring</h2>
+      <ul>
+        <li>If we both cooperate, we both get <b>3 points</b>.
+        <li>If you cooperate and I defect, I get <b>5 points</b> and you get <b>none</b>.
+        <li>If you defect and I cooperate, you get <b>5 points</b> and I get <b>none</b>.
+        <li>If we both defect, we both get <b>1 point</b>.
+      </ul>
+    
+      <h2>A new discovery</h2>
+      <p>William Press and Freeman Dyson have discovered a new class of strategies
+      that are quite surprising. One thing they found is that I can decide what
+      I want your score to be, and play in such a way that your average score
+      is whatever I decided. The way you play will affect my score, but over the
+      long run there is nothing you can do to affect your own score.</p>
+    
+      <h2>Let us play!</h2>
+      <p>To illustrate this, I’ve decided I want your average score to be 2.
+        You’ll see that, however you play, after a few hundred moves your average
+        score will be approximately 2.</p>
+      
+      <div id="game">
+        <form>
+          Your move:
+          <input type="submit" id="cooperate" name="x" value="Cooperate">
+          <input type="submit" id="defect" name="x" value="Defect">
+        </form>
+        <div>Your average score: <span id="your-average-score"></span></div>
+        <div>My average score: <span id="my-average-score"></span></div>
+        <h3>History <a id="reset-game" href="#">new game</a></h3>
+        <div id="history">
+        </div>
+      </div>
+      
+      <h2>How does it work?</h2>
+      <p>The computer is playing a very simple strategy in the game above.
+      Its play is based purely on how both of us played in the previous move:</p>
+      <ul>
+        <li>If you cooperated last time, then I cooperate with probability 2/3.
+        <li>If I cooperated and you defected, then this time I defect.
+        <li>If we both defected last time, I cooperate with probability 1/3.
+      </ul>
+      <p>These probabilities were obtained by deciding I wanted your average score
+        to be 2, and solving equations [8] and [9] in <a href="http://www.pnas.org/content/early/2012/05/16/1206569109.full.pdf">Press and Dyson’s paper</a>
+        for a target score of 2.</p>
+      
+      <h2>Further reading</h2>
+      <ul>
+        <li><a href="http://edge.org/conversation/on-iterated-prisoner-dilemma">Conversation on The Edge website</a>
+        <li><a href="http://www.pnas.org/content/early/2012/05/16/1206569109.full.pdf">Technical paper with all the details</a>
+        <li><a href="http://nr.com/whp/StewartPlotkinExtortion2012.pdf">Discussion paper</a>
+      </ul>
+    </div>
+  </body>
+</html>
