@@ -18,7 +18,7 @@
           "true,false": 2/3,
           "false,true": 0,
           "false,false": 1/3
-        }[your_last_move + "," + my_last_move]
+        }[your_last_move + "," + my_last_move];
         
         return Math.random() < my_probability_of_cooperation;
       }
@@ -29,7 +29,7 @@
           "true,false":  { "you": 0, "me": 5 },
           "false,true":  { "you": 5, "me": 0 },
           "false,false": { "you": 1, "me": 1 }
-        }[your_move + "," + my_move]
+        }[your_move + "," + my_move];
       }
       
       // Pad a number n with zeros to k digits
