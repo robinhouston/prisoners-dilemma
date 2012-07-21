@@ -6,47 +6,73 @@
     <style type="text/css">
       body { font-family: sans-serif; margin: 2em; width: 800px; background: #999; }
       #content { background: white; padding: 1em 2em; border-radius: 5px; }
-      #game { border: 1px solid #999; padding: 12px; }
-      #game form { margin: 12px; }
-      #game #reset-game { font-size: 12px; }
+      .game { border: 1px solid #999; padding: 12px; }
+      .game form { margin: 12px; }
+      .game .reset-game { font-size: 12px; }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script>
-      function calculateMyMove(your_last_move, my_last_move) {
-        var my_probability_of_cooperation = {
-          "true,true": 2/3,
-          "true,false": 2/3,
-          "false,true": 0,
-          "false,false": 1/3
-        }[your_last_move + "," + my_last_move];
+      jQuery.fn.ipd = function(strategy, payoffs) {
+        var $this = this;
         
-        return Math.random() < my_probability_of_cooperation;
-      }
-      
-      function calculateScores(your_move, my_move) {
-        return {
-          "true,true":   { "you": 3, "me": 3 },
-          "true,false":  { "you": 0, "me": 5 },
-          "false,true":  { "you": 5, "me": 0 },
-          "false,false": { "you": 1, "me": 1 }
-        }[your_move + "," + my_move];
-      }
-      
-      // Pad a number n with zeros to k digits
-      function zeroPad(k, n) {
-        var s = "" + n;
-        while (s.length < k) s = '0' + s;
-        return s;
-      }
-      // Format a number to three decimal places
-      function formatNumber(n) {
-        var integer_part = Math.floor(n);
-        var fractional_part = n - integer_part;
+        if (typeof strategy == "undefined") {
+          strategy = {
+            "true,true": 2/3,
+            "true,false": 2/3,
+            "false,true": 0,
+            "false,false": 1/3
+          };
+        }
+        else if (jQuery.isArray(strategy)) {
+          strategy = {
+            "true,true": strategy[0],
+            "true,false": strategy[1],
+            "false,true": strategy[2],
+            "false,false": strategy[3]
+          };
+        }
         
-        return integer_part + "." + zeroPad(3, Math.round(1000 * fractional_part));
-      }
+        if (typeof payoffs == "undefined") {
+          payoffs = {
+            "true,true":   { "you": 3, "me": 3 },
+            "true,false":  { "you": 0, "me": 5 },
+            "false,true":  { "you": 5, "me": 0 },
+            "false,false": { "you": 1, "me": 1 }
+          };
+        }
+        else if (jQuery.isArray(payoffs)) {
+          payoffs = {
+            "true,true":   { "you": payoffs[0][0], "me": payoffs[0][1] },
+            "true,false":  { "you": payoffs[1][0], "me": payoffs[1][1] },
+            "false,true":  { "you": payoffs[2][0], "me": payoffs[2][1] },
+            "false,false": { "you": payoffs[3][0], "me": payoffs[3][1] }
+          };
+        }
+        
+        function calculateMyMove(your_last_move, my_last_move) {
+          var my_probability_of_cooperation = strategy[your_last_move + "," + my_last_move];
+        
+          return Math.random() < my_probability_of_cooperation;
+        }
       
-      $(function() {
+        function calculateScores(your_move, my_move) {
+          return payoffs[your_move + "," + my_move];
+        }
+      
+        // Pad a number n with zeros to k digits
+        function zeroPad(k, n) {
+          var s = "" + n;
+          while (s.length < k) s = '0' + s;
+          return s;
+        }
+        // Format a number to three decimal places
+        function formatNumber(n) {
+          var integer_part = Math.floor(n);
+          var fractional_part = n - integer_part;
+        
+          return integer_part + "." + zeroPad(3, Math.round(1000 * fractional_part));
+        }
+      
         var your_move
           , your_last_move = true
           , my_last_move = true
@@ -54,17 +80,17 @@
           , my_total_score = 0
           , number_of_moves = 0;
         
-        $("#game form #cooperate").click(function() {
+        $this.find("form .cooperate").click(function() {
           your_move = true;
           return true;
         });
-        $("#game form #defect").click(function() {
+        $this.find("form .defect").click(function() {
           your_move = false;
           return true;
         });
         
         var move_template = $("<div><span class='move-number'></span>. You <span class='your-move'></span> (<span class='your-score'></span> points) and I <span class='my-move'></span> (<span class='my-score'></span> points)</div>");
-        $("#game form").submit(function(e) {
+        $this.find("form").submit(function(e) {
           e.preventDefault();
           var my_move = calculateMyMove(your_last_move, my_last_move);
           var scores = calculateScores(your_move, my_move);
@@ -75,15 +101,15 @@
           number_of_moves += 1;
           
           // Update the page
-          $("#your-average-score").text(formatNumber(your_total_score/number_of_moves));
-          $("#my-average-score").text(formatNumber(my_total_score/number_of_moves));
+          $this.find(".your-average-score").text(formatNumber(your_total_score/number_of_moves));
+          $this.find(".my-average-score").text(formatNumber(my_total_score/number_of_moves));
           var this_move = move_template.clone();
           this_move.find(".move-number").text(number_of_moves).end()
                    .find(".your-move").text(your_move ? "cooperated" : "defected").end()
                    .find(".your-score").text(scores.you).end()
                    .find(".my-move").text(my_move ? "cooperated" : "defected").end()
                    .find(".my-score").text(scores.me).end();
-          $("#history").prepend(this_move);
+          $this.find(".history").prepend(this_move);
           
           // The current moves are next time’s last moves
           your_last_move = your_move;
@@ -91,16 +117,23 @@
           return false;
         });
         
-        $("#reset-game").click(function() {
+        $this.find(".reset-game").click(function() {
           your_total_score = 0;
           my_total_score = 0;
           number_of_moves = 0;
 
-          $("#your-average-score, #my-average-score, #history").html("");
+          $this.find(".your-average-score, .my-average-score, .history").html("");
 
           return false;
         });
-      });
+      };
+      
+      $(function() {
+        $(".game").each(function() {
+          var e = $(this);
+          e.ipd(eval(e.data("strategy")));
+        });
+      })
     </script>
   </head>
   <body>
@@ -130,16 +163,16 @@
         You’ll see that, however you play, after a few hundred moves your average
         score will be approximately 2.</p>
       
-      <div id="game">
+      <div class="game" data-strategy="[2/3,2/3,0,1/3]">
         <form>
           Your move:
-          <input type="submit" id="cooperate" name="x" value="Cooperate">
-          <input type="submit" id="defect" name="x" value="Defect">
+          <input type="submit" class="cooperate" name="x" value="Cooperate">
+          <input type="submit" class="defect" name="x" value="Defect">
         </form>
-        <div>Your average score: <span id="your-average-score"></span></div>
-        <div>My average score: <span id="my-average-score"></span></div>
-        <h3>History <a id="reset-game" href="#">new game</a></h3>
-        <div id="history">
+        <div>Your average score: <span class="your-average-score"></span></div>
+        <div>My average score: <span class="my-average-score"></span></div>
+        <h3>History <a class="reset-game" href="#">new game</a></h3>
+        <div class="history">
         </div>
       </div>
       
@@ -154,6 +187,36 @@
       <p>These probabilities were obtained by deciding I wanted your average score
         to be 2, and solving equations [8] and [9] in <a href="http://www.pnas.org/content/early/2012/05/16/1206569109.full.pdf">Press and Dyson’s paper</a>
         for a target score of 2.</p>
+      
+      <h2>Notes</h2>
+      <p>Although this strategy does belong to the new and interesting class of Press-Dyson
+        strategies, it turns out that this particular type of Press-Dyson strategy
+        (ones that force your opponent to have a particular fixed score, on average, however
+        they play) were described earlier by Maarten C Boerlijst, Martin A Nowak and Karl Sigmund
+        in their 1997 paper <a href="http://homepage.univie.ac.at/karl.sigmund/AMM97.pdf">Equal Pay for All Prisoners</a>.</p>
+      
+      <h2 id="extortion">How about some extortion?</h2>
+      <p>Another interesting class of Press-Dyson strategies is the “extortionate” ones.
+        In this example your best strategy (if you want to maximise your own score) is to
+        cooperate all the time – but then I will occasionally defect and so always do better
+        than you.</p>
+      <p>In fact if you follow any strategy other than “always defect” then I will
+        do three times better than you, in the sense that – on average over the long run –
+        (my score - 1) will be 3× larger than (your score - 1).</p>
+      <p>Try it and see!</p>
+      
+      <div class="game" data-strategy="[11/13,7/26,1/2,0]">
+        <form>
+          Your move:
+          <input type="submit" class="cooperate" name="x" value="Cooperate">
+          <input type="submit" class="defect" name="x" value="Defect">
+        </form>
+        <div>Your average score: <span class="your-average-score"></span></div>
+        <div>My average score: <span class="my-average-score"></span></div>
+        <h3>History <a class="reset-game" href="#">new game</a></h3>
+        <div class="history">
+        </div>
+      </div>
       
       <h2>Further reading</h2>
       <ul>
