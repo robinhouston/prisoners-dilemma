@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>The Iterated Prisoner’s Dilemma after Press and Dyson: fixing your score</title>
+    <link rel="stylesheet" href="minigame.css" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="ipd.js"></script>
+  </head>
+  <body>
+    <div id="content">
+      <h1>The Iterated Prisoner’s Dilemma: Press-Dyson Interactive</h1>
+      <h2>The Game</h2>
+      <p>In each round, each of us can choose to cooperate or to defect.
+      We play repeated rounds. In each round:</p>
+      <ul>
+        <li>If we both cooperate, we both get <b>3 points</b>.
+        <li>If you cooperate and I defect, I get <b>5 points</b> and you get <b>none</b>.
+        <li>If you defect and I cooperate, you get <b>5 points</b> and I get <b>none</b>.
+        <li>If we both defect, we both get <b>1 point</b>.
+      </ul>
+    
+      <ol id="tabs">
+        <li class="left selected">Fixed score
+        <li class="mid"><a href="extortion.html">Extortion</a>
+        <li class="right"><a href="titfer.html">Generous</a>
+      </ol>
+      <div id="tabbed">
+        <p>In this game, I’ve decided I want your average score to be 2.
+          You’ll see that, however you play, after a few hundred moves your average
+          score will be approximately 2.</p>
+      
+        <div id="game" data-strategy="[2/3,2/3,0,1/3]">
+          <form>
+            Your move:
+            <input type="submit" class="cooperate" name="x" value="Cooperate">
+            <input type="submit" class="defect" name="x" value="Defect">
+          </form>
+          <div>Your average score: <span class="your-average-score"></span></div>
+          <div>My average score: <span class="my-average-score"></span></div>
+          <h3>History <a class="reset-game" href="#">new game</a></h3>
+          <div class="history">
+          </div>
+        </div>
+        <script>$("#game").ipd([2/3,2/3,0,1/3]);</script>
+      
+        <h2>How does it work?</h2>
+        <p>I am playing a very simple strategy in the game above.
+        My play is based purely on how both of us played in the previous move:</p>
+        <ul>
+          <li>If you cooperated last time, then I cooperate with probability 2/3.
+          <li>If I cooperated and you defected, then this time I defect.
+          <li>If we both defected last time, I cooperate with probability 1/3.
+        </ul>
+      
+        <p>These probabilities were obtained by deciding I wanted your average score
+          to be 2, and solving equations [8] and [9] in <a href="http://www.pnas.org/content/early/2012/05/16/1206569109.full.pdf">Press and Dyson’s paper</a>
+          for a target score of 2.</p>
+      
+        <h2>Note</h2>
+        <p>Although this strategy does belong to the new and interesting class of Press-Dyson
+          strategies, it turns out that this particular type of Press-Dyson strategy
+          (ones that force your opponent to have a particular fixed score, on average, however
+          they play) was described earlier by Maarten C Boerlijst, Martin A Nowak and Karl Sigmund
+          in their 1997 paper <a href="http://homepage.univie.ac.at/karl.sigmund/AMM97.pdf">Equal Pay for All Prisoners</a>.</p>
+      </div>
+    </div>
+  </body>
+</html>

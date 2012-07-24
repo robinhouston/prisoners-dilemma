@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>The Iterated Prisoner’s Dilemma after Press and Dyson: Generous</title>
+    <link rel="stylesheet" href="minigame.css" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="ipd.js"></script>
+  </head>
+  <body>
+    <div id="content">
+      <h1>The Iterated Prisoner’s Dilemma: Press-Dyson Interactive</h1>
+      <h2>The Game</h2>
+      <p>In each round, each of us can choose to cooperate or to defect.
+      We play repeated rounds. In each round:</p>
+      <ul>
+        <li>If we both cooperate, we both get <b>3&nbsp;points</b>.
+        <li>If you cooperate and I defect, I get <b>5&nbsp;points</b> and you get <b>none</b>.
+        <li>If you defect and I cooperate, you get <b>5&nbsp;points</b> and I get <b>none</b>.
+        <li>If we both defect, we both get <b>1&nbsp;point</b>.
+      </ul>
+      
+      <ol id="tabs">
+        <li class="left"><a href="fixed.html">Fixed score</a>
+        <li class="mid"><a href="extortion.html">Extortion</a>
+        <li class="right selected">Generous
+      </ol>
+      <div id="tabbed">
+        <p>This is possibly the strategy that slightly bettered generous Tit for Tat in Stewart and Plotkin’s simulation. It is fair in the sense that if you always cooperate then I will too. It is a self-sacrificing strategy: if you do <i>not</i> always cooperate I will do worse than you. In fact on average I lose precisely twice as much as you: if your average score is less than 3, mine will be less by as much again.</p>
+        <div id="game">
+          <form>
+            Your move:
+            <input type="submit" class="cooperate" name="x" value="Cooperate">
+            <input type="submit" class="defect" name="x" value="Defect">
+          </form>
+          <div>Your average score: <span class="your-average-score"></span></div>
+          <div>My average score: <span class="my-average-score"></span></div>
+          <h3>History <a class="reset-game" href="#">new game</a></h3>
+          <div class="history">
+          </div>
+        </div>
+        <script>$("#game").ipd([1,0.8,0.3,0.2]);</script>
+      
+        <h2>How does it work?</h2>
+        <p>My play is based purely on how both of us played in the previous move:</p>
+        <ul>
+          <li>If we both cooperated last time, then I cooperate.
+          <li>If I cheated you last time (you cooperated and I defected), then I cooperate with probability&nbsp;8/10.
+          <li>If you cheated me last time (I cooperated and you defected), then I cooperate with probability&nbsp;3/10.
+          <li>If we both defected last time, I cooperate with probability 2/10.
+        </ul>
+      
+        <p>These probabilities were chosen to establish the relation <i>S<sub>X</sub></i>&nbsp;−&nbsp;2<i>S<sub>Y</sub></i>&nbsp;+&nbsp;3&nbsp;=&nbsp;0 using <a href="http://www.pnas.org/content/early/2012/05/16/1206569109.full.pdf">Press and Dyson’s results</a>, where <i>S<sub>X</sub></i> is my score and <i>S<sub>Y</sub></i> is yours.</p>
+        <p>This may or may not be the same as the strategy called ZDGTFT-2 by <a href="http://nr.com/whp/StewartPlotkinExtortion2012.pdf">Stewart and Plotkin</a>. Unfortunately they don’t describe their strategy explicitly, only saying that it satisfies the relation above; but there are infinitely many such strategies.</p>
+      </div>
+    </div>
+  </body>
+</html>

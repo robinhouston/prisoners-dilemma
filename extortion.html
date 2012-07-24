@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>The Iterated Prisoner’s Dilemma after Press and Dyson: Extortion</title>
+    <link rel="stylesheet" href="minigame.css" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="ipd.js"></script>
+  </head>
+  <body>
+    <div id="content">
+      <h1>The Iterated Prisoner’s Dilemma: Press-Dyson Interactive</h1>
+      <h2>The Game</h2>
+      <p>In each round, each of us can choose to cooperate or to defect.
+      We play repeated rounds. In each round:</p>
+      <ul>
+        <li>If we both cooperate, we both get <b>3&nbsp;points</b>.
+        <li>If you cooperate and I defect, I get <b>5&nbsp;points</b> and you get <b>none</b>.
+        <li>If you defect and I cooperate, you get <b>5&nbsp;points</b> and I get <b>none</b>.
+        <li>If we both defect, we both get <b>1&nbsp;point</b>.
+      </ul>
+      
+      <ol id="tabs">
+        <li class="left"><a href="fixed.html">Fixed score</a>
+        <li class="mid selected">Extortion
+        <li class="right"><a href="titfer.html">Generous</a>
+      </ol>
+      <div id="tabbed">
+        <p>In this game I will extort you. Your best strategy, if you want to maximise your
+          own score, is to cooperate all the time – but then I will occasionally defect and
+          so always do better than you.</p>
+        <p>The only way you can avoid being taken advantage of is to resign yourself to the
+          meagre rewards of mutual defection, and to defect on every turn. If you do anything
+          else then I will take advantage of your cooperation and I will do three times better
+          than you, in the sense that – on average over the long run –
+          (my&nbsp;score minus 1) will be thrice (your&nbsp;score minus 1).</p>
+        <div id="game">
+          <form>
+            Your move:
+            <input type="submit" class="cooperate" name="x" value="Cooperate">
+            <input type="submit" class="defect" name="x" value="Defect">
+          </form>
+          <div>Your average score: <span class="your-average-score"></span></div>
+          <div>My average score: <span class="my-average-score"></span></div>
+          <h3>History <a class="reset-game" href="#">new game</a></h3>
+          <div class="history">
+          </div>
+        </div>
+        <script>$("#game").ipd([11/13,7/26,1/2,0]);</script>
+      
+        <h2>How does it work?</h2>
+        <p>My play is based purely on how both of us played in the previous move:</p>
+        <ul>
+          <li>If we both cooperated last time, then I cooperate with probability&nbsp;11/13.
+          <li>If I cheated you last time (you cooperated and I defected), then I cooperate with probability&nbsp;7/26.
+          <li>If you cheated me last time (I cooperated and you defected), then I cooperate with probability&nbsp;1/2.
+          <li>If we both defected last time, I defect.
+        </ul>
+      
+        <p>These probabilities are taken from <a href="http://www.pnas.org/content/early/2012/05/16/1206569109.full.pdf">Press and Dyson’s paper</a>, where this strategy appears as an example.</p>
+      </div>
+    </div>
+  </body>
+</html>
